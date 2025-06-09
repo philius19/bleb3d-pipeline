@@ -1,11 +1,12 @@
 from mat73 import loadmat
 from pathlib import Path
+import trimesh
 from typing import Tuple, List
 import numpy as np
 import json
 
 """
-File input/output operations for mesh analysis.
+File input/output operations for mesh analysis. Maybe rework to store all of the data in one single Library? 
 """
 
 def validate_file_paths(surface_path: Path, curvature_path: Path, 
@@ -28,38 +29,29 @@ def validate_file_paths(surface_path: Path, curvature_path: Path,
             )
 
 
-def load_surface_data(filepath: Path) -> Tuple[np.ndarray, np.ndarray]:
+def load_surface_data(filepath: Path) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Load surface mesh data from .mat file.
     
     Returns:
-        Tuple of (vertices, faces)
+        Tuple of (vertices, faces, mesh)
     """
     surface_data = loadmat(str(filepath))
     surface = surface_data['surface']
     
     vertices = np.array(surface['vertices'], dtype=np.float32)
     faces = np.array(surface['faces'], dtype=np.int32) - 1  # Convert to 0-based
+    mesh = trimesh.Trimesh(vertices = vertices, faces = faces)
     
-    return vertices, faces
+    return vertices, faces, mesh
 
 
 def load_curvature_data(filepath: Path, expected_length: int) -> np.ndarray:
-    """
-    Load curvature data from .mat file.
-    
-    Args:
-        filepath: Path to curvature file
-        expected_length: Expected number of values (for validation)
-        
-    Returns:
-        Flattened curvature array
-        
-    Raises:
-        ValueError: If curvature length doesn't match expected
-    """
+
     curv_data = loadmat(str(filepath))
     curvature = np.array(curv_data['meanCurvature']).flatten()
+
+
     
     if len(curvature) != expected_length:
         raise ValueError(
@@ -68,6 +60,25 @@ def load_curvature_data(filepath: Path, expected_length: int) -> np.ndarray:
         )
     
     return curvature
+
+def load_curvature_data_raw(filepath: Path) -> np.ndarray:
+
+    curv_raw_data = loadmat(str(filepath))
+    curv_raw_data = np.array(curv_raw_data['meanCurvatureUnsmoothed']).flatten()
+
+
+def load_gauss_data(filepath: Path) -> np.ndarray:
+
+
+    gauss_data = loadmat(str(filepath))
+    gauss_data = np.array(gauss_data['gaussCurvatureUnsmoothed']).flatten()
+
+    return gauss_data
+
+
+
+
+
 
 
 def save_mesh_to_ply(mesh, filepath: Path) -> None:

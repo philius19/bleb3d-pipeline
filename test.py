@@ -1,5 +1,7 @@
 from mesh_analysis import MeshAnalyzer
-from mesh_analysis.visualization import plot_curvature_distribution
+from mesh_analysis.visualization import plot_curvature_distribution, plot_vertice_distribution
+import plotly.graph_objects as go
+import numpy as np
 
 
 surface_path3D = "/Users/philippkaintoch/Documents/Projects/01_Bleb3D/Datensatz/3DPreprocessed/Results/Morphology/Analysis/Mesh/ch1/surface_1_1.mat"
@@ -21,5 +23,16 @@ stats2D = analyzer2D.calculate_statistics()
 curv3D = analyzer3D.curvature
 curv2D = analyzer2D.curvature
 
-plot_curvature_distribution(curv3D, "/Users/philippkaintoch/Desktop/3D.png")
-plot_curvature_distribution(curv2D, "/Users/philippkaintoch/Desktop/2D.png")
+mesh = analyzer2D.mesh
+
+print(analyzer3D.physical_dimensions)
+
+
+
+
+
+#plot_curvature_distribution(curv3D, "/Users/philippkaintoch/Desktop/3D.png")
+#plot_curvature_distribution(curv2D, "/Users/philippkaintoch/Desktop/2D.png")
+
+#plot_vertice_distribution(analyzer3D.vertices, "/Users/philippkaintoch/Desktop/3D_Pl.png")
+#plot_vertice_distribution(analyzer2D.vertices, "/Users/philippkaintoch/Desktop/2D_Pl.png")

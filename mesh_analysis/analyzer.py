@@ -3,7 +3,7 @@ from typing import Optional, Dict
 
 import numpy as np
 import trimesh
-from mat73 import loadmat
+
 
 from .io import load_surface_data, load_curvature_data, validate_file_paths
 from .utils import calculate_mesh_quality_metrics
@@ -97,14 +97,7 @@ class MeshAnalyzer:
 
         try:
             # Load surface data
-            self.vertices, self.faces = load_surface_data(self.surface_path)
-
-            # Create trimesh object
-            self.mesh = trimesh.Trimesh(
-                vertices = self.vertices,
-                faces = self.faces,
-                process = True
-            )
+            self.vertices, self.faces, self.mesh = load_surface_data(self.surface_path)
 
             # Fix mesh orientation if needed
             if self.mesh.volume < 0:
@@ -121,8 +114,8 @@ class MeshAnalyzer:
             self._processed = True
 
             if verbose:
-                print(f"✓ Loaded {len(self.vertices):,} vertices, {len(self.faces):,} faces")
-                print(f"✓ Mesh volume: {self.mesh.volume:.2f} pixels³")
+                print(f"✓ Loaded {len(self.vertices)} vertices, {len(self.faces)} faces")
+                print(f"✓ Mesh volume: {self.mesh.volume} pixels³")
 
         except Exception as e:
             raise RuntimeError(f"Failed to load data: {str(e)}")
@@ -160,6 +153,8 @@ class MeshAnalyzer:
             'curvature': {
                 'mean': float(np.mean(self.curvature)),
                 'std': float(np.std(self.curvature)),
+                'sem': float(np.std(self.curvature) / np.sqrt(len(self.curvature))),
+                'median': float(np.median(self.curvature)),
                 'min': float(np.min(self.curvature)),
                 'max': float(np.max(self.curvature)),
                 'percentiles': {
@@ -176,8 +171,8 @@ class MeshAnalyzer:
 
         return stats
     
-    # ========== PROPERTY METHODS (computed attributes) ==========
-    @property
+    # ========== PROPERTY METHODS (only runs when accessed f.e. analyzer.is_loaded) ==========
+    @property 
     def is_loaded(self) -> bool:
         """Check if data has been loaded."""
         return self._processed
